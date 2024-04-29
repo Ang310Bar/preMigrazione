@@ -112,17 +112,16 @@ if [ -n "$repositoryPath" ]; then
     echo "$spazio" >> $reportPath
     echo " " >> $reportPath
     echo "LISTA DEI WS:" >> $reportPath
-    echo cat $parentPath/wildfly_home/standalone/deploy/sicraweb.ear/sicraweb.war/WEB-INF/server-config.wsdd | grep "service name" | awk '{print $2}' | sed 's/name="//; s/"//' >> $reportPath
+    echo cat $parentPath/wildfly_home/standalone/deploy/sicraweb.ear/sicraweb.war/WEB-INF/server-config.wsdd | grep "service name" | awk '{print $2}' >> $reportPath
     echo " " >> $reportPath
     echo "$spazio" >> $reportPath
     echo " " >> $reportPath
     echo "LISTA DEGLI ALIAS DEI WS:" >> $reportPath
     cat $parentPath/wildfly_home/standalone/deploy/sicraweb.ear/server/signed-jars/conf.ig/sicraweb.server.config.xml | grep "alias" | awk '{print $4}' | grep 'name="[^"]*"' | sed 's/name="//; s/"//' >> $reportPath
     echo " " >> $reportPath
-    echo "$spazio" >> $reportPath
-    echo "$spazio" >> $reportPath
-    echo " " >> $reportPath
     echo "Il report è pronto, consulta il file report.txt ($current_folder/report.txt) per tutte le informazioni. "
+    echo "$spazio" >> $reportPath
+    echo "FINE REPORT" >> $reportPath
     echo "$spazio" >> $reportPath
 else
     echo "$spazio" >> $reportPath
