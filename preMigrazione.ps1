@@ -25,7 +25,7 @@ $separatore | Out-File -FilePath "$reportFile" -Append
 Write-Host "Cerco la cartella Maggioli nei dischi. Questa operazione potrebbe richiedere qualche secondo."
 # Itera su ciascun disco
 foreach ($disco in $dischi) {
-    $maggioliPath = Get-ChildItem -Path "$disco\" -Recurse -Depth 4 -Directory -Filter '*maggioli*' -ErrorAction SilentlyContinue | Where-Object { $_.FullName -like "*\maggioli" -or $_.FullName -like "*\Maggioli" } | Select-Object -ExpandProperty FullName -First 1
+    $maggioliPath = Get-ChildItem -Path "$disco\" -Recurse -Directory -Filter '*maggioli*' -ErrorAction SilentlyContinue | Where-Object { $_.FullName -like "*\maggioli" -or $_.FullName -like "*\Maggioli" } | Select-Object -ExpandProperty FullName -First 1
     
     if ($maggioliPath) {
         Write-Host "Path della cartella Maggioli trovato!" -ForegroundColor Green
@@ -44,12 +44,12 @@ else{
     Write-Host "PATH DELLA CARTELLA MAGGIOLI NON TROVATO." -ForegroundColor Red
     Write-Host "Cerco direttamente le cartelle necessarie."
     foreach ($disco in $dischi) {
-        $repositoryPath = Get-ChildItem -Path "$disco\" -Directory -Filter '*repository*' -ErrorAction SilentlyContinue -Recurse -Depth 1 | Where-Object { $_.FullName -like "*\repository" -or $_.FullName -like "*\Repository" } | Select-Object -ExpandProperty FullName -First 1
+        $repositoryPath = Get-ChildItem -Path "$disco\" -Directory -Filter '*repository*' -ErrorAction SilentlyContinue -Recurse | Where-Object { $_.FullName -like "*\repository" -or $_.FullName -like "*\Repository" } | Select-Object -ExpandProperty FullName -First 1
         if ($repositoryPath) {
-            $wildflyPath = Get-ChildItem -Path "$disco\" -Recurse -Depth 3 -Directory -Filter '*wildfly_home*' -ErrorAction SilentlyContinue  | Where-Object { $_.FullName -like "*\wildfly_home" -or $_.FullName -like "*\Wildfly_home" } | Select-Object -ExpandProperty FullName -First 1
-            $javaPath = Get-ChildItem -Path "$disco\" -Recurse -Depth 3 -Directory -Filter '*java*' -ErrorAction SilentlyContinue | Where-Object { $_.FullName -like "*\java" -or $_.FullName -like "*\Java" } | Select-Object -ExpandProperty FullName -First 1
+            $wildflyPath = Get-ChildItem -Path "$disco\" -Recurse -Directory -Filter '*wildfly_home*' -ErrorAction SilentlyContinue  | Where-Object { $_.FullName -like "*\wildfly_home" -or $_.FullName -like "*\Wildfly_home" } | Select-Object -ExpandProperty FullName -First 1
+            $javaPath = Get-ChildItem -Path "$disco\" -Recurse -Directory -Filter '*java*' -ErrorAction SilentlyContinue | Where-Object { $_.FullName -like "*\java" -or $_.FullName -like "*\Java" } | Select-Object -ExpandProperty FullName -First 1
             $cacertsPath = Get-ChildItem -Path "$javaPath\" -Recurse -Directory -Filter '*security*' -ErrorAction SilentlyContinue | Where-Object { $_.FullName -like "*\lib\security" } | Select-Object -ExpandProperty FullName -First 1
-            $dataPath = Get-ChildItem -Path "$disco\" -Recurse -Depth 6 -Directory -Filter '*data*' | Where-Object { $_.FullName -like "*\geoserver\data" } | Select-Object -ExpandProperty FullName -First 1
+            $dataPath = Get-ChildItem -Path "$disco\" -Recurse -Directory -Filter '*data*' | Where-Object { $_.FullName -like "*\geoserver\data" } | Select-Object -ExpandProperty FullName -First 1
             break
         }
     }
