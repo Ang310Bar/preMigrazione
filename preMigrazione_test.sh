@@ -112,7 +112,7 @@ if [ -n "$repositoryPath" ]; then
     echo "$spazio" >> $reportPath
     echo " " >> $reportPath
     echo "LISTA DEI WS:" >> $reportPath
-    echo cat $parentPath/wildfly_home/standalone/deploy/sicraweb.ear/sicraweb.war/WEB-INF/server-config.wsdd | grep "service name" | awk '{print $2}' >> $reportPath
+    cat $parentPath/wildfly_home/standalone/deploy/sicraweb.ear/sicraweb.war/WEB-INF/server-config.wsdd | grep "service name" | awk '{print $2}' | grep 'name="[^"]*"' | sed 's/name="//; s/"//' >> $reportPath
     echo " " >> $reportPath
     echo "$spazio" >> $reportPath
     echo " " >> $reportPath
