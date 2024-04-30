@@ -24,8 +24,11 @@ echo "$spazio" >> $reportPath
 echo " " >> $reportPath
 echo "Cerco la cartella del repository" >> $reportPath
 echo " " >> $reportPath
-repositoryPath=$(find / -type d -path "*/home/jboss/repository" 2> /dev/null)
-
+$limiteAttesa=10
+repositoryPath=$(timeout $limiteAttesa find / -type d -path "*/home/jboss/repository" 2> /dev/null)
+if [ -n "$repositoryPath" ]; then
+        repositoryPath=$(timeout $limiteAttesa locate "*/home/jboss/repository" 2> /dev/null)
+fi
 # Verifica se il percorso della cartella "repository" è stato trovato correttamente
 if [ -n "$repositoryPath" ]; then
 
@@ -40,18 +43,44 @@ if [ -n "$repositoryPath" ]; then
     # Ottieni il percorso della cartella genitore di "repository" che sarebbe /home/jboss/
     parentPath=$(dirname "$repositoryPath") 
 
-    if mkdir "$repositoryPath/appoggio"; then
-        echo "$spazio" >> $reportPath
-        echo " " >> $reportPath
-        echo "PATH DELLA CARTELLA DI APPOGGIO: $repositoryPath/appoggio" >> $reportPath
-        echo " " >> $reportPath
+    #!/bin/bash
+
+    # Controllo se la cartella appoggio esiste già
+    if [ -d "$repositoryPath/appoggio" ]; then
+        echo "La cartella 'appoggio' esiste già. Non copio i file"
+        echo "$spazio" >> "$reportPath"
+        echo " " >> "$reportPath"
+        echo "La cartella 'appoggio' esiste già. Non copio i file" >> "$reportPath"
+        echo "Percorso della cartella di appoggio: $repositoryPath/appoggio" >> "$reportPath"
+        echo " " >> "$reportPath"
     else
-        echo "$spazio" >> $reportPath
-        echo " " >> $reportPath
-        echo "Impossibile creare la cartella 'appoggio'. Interrompo lo script." >> $reportPath
-        echo " " >> $reportPath
-        exit 1
+        # Se la cartella non esiste, tenta di crearla
+        if mkdir "$repositoryPath/appoggio"; then
+            echo "Creo la cartella 'appoggio'."
+            echo "$spazio" >> "$reportPath"
+            echo " " >> "$reportPath"
+            echo "Cartella di appoggio creata: $repositoryPath/appoggio" >> "$reportPath"
+            echo " " >> "$reportPath"
+            echo "Cartella di appoggio creata: $repositoryPath/appoggio"
+            echo "Copio i file"
+             # Esegui i comandi cp con i percorsi relativi rispetto alla cartella genitore di "repository"
+            cp -pr "${parentPath}/java/jre/lib/security/cacerts" "$repositoryPath/appoggio"
+            cp -pr "${parentPath}/wildfly_home/standalone/configuration/standalone-full.xml" "$repositoryPath/appoggio"
+            cp -pr "${parentPath}/wildfly_home/standalone/deploy/sicraweb.ear/server/signed-jars/conf.ig/sicraweb.server.config.xml" "$repositoryPath/appoggio"
+            cp -pr "${parentPath}/wildfly_home/standalone/deploy/sicraweb.ear/server/signed-jars/conf.ig/security_1" "$repositoryPath/appoggio"
+            cp -pr "${parentPath}/wildfly_home/standalone/deploy/sicraweb.ear/server/signed-jars/conf.ig/security_2" "$repositoryPath/appoggio"
+        else
+            echo "Impossibile creare la cartella 'appoggio'. Interrompo lo script."
+            echo "$spazio" >> "$reportPath"
+            echo " " >> "$reportPath"
+            echo "Impossibile creare la cartella 'appoggio'. Interrompo lo script." >> "$reportPath"
+            echo " " >> "$reportPath"
+            exit 1
+        fi
     fi
+    echo "CONTENUTO DELLA CARTELLA DI APPOGGIO: " >> $reportPath
+    ls -l "$repositoryPath/appoggio" | awk '{print $9}' >> $reportPath
+
      
     #comandi PSQL
     echo "$spazio" >> $reportPath
@@ -63,51 +92,36 @@ if [ -n "$repositoryPath" ]; then
     echo "'\du':" >> $reportPath
     psql -h 127.0.0.1 -U postgres -c "\du" >> $reportPath
     echo " " >> $reportPath
-    cd $repositoryPath/appoggio
 
-    # Esegui i comandi cp con i percorsi relativi rispetto alla cartella genitore di "repository"
-    cp -pr "${parentPath}/java/jre/lib/security/cacerts" .
-    cp -pr "${parentPath}/wildfly_home/standalone/configuration/standalone-full.xml" .
-    cp -pr "${parentPath}/wildfly_home/standalone/deploy/sicraweb.ear/server/signed-jars/conf.ig/sicraweb.server.config.xml" .
-    cp -pr "${parentPath}/wildfly_home/standalone/deploy/sicraweb.ear/server/signed-jars/conf.ig/security_1" .
-    cp -pr "${parentPath}/wildfly_home/standalone/deploy/sicraweb.ear/server/signed-jars/conf.ig/security_2" .
-  
+    echo "Verifico VAADIN."
     # Verifica VAADIN
     if [ -f "$parentPath/wildfly_home/standalone/deploy/sicraweb-vaadin.war/WEB-INF/portal.properties" ]; then
-        cp -pr "${parentPath}/wildfly_home/standalone/deploy/sicraweb-vaadin.war/WEB-INF/portal.properties" .
-        echo "$spazio" >> $reportPath
-        echo " " >> $reportPath
-        echo "LISTA DEI FILE IN APPOGGIO:" >> $reportPath
-        ls -1 >> $reportPath
-        echo " " >> $reportPath
-        cd ..
+        cp -pr "${parentPath}/wildfly_home/standalone/deploy/sicraweb-vaadin.war/WEB-INF/portal.properties" "$repositoryPath/appoggio"
         echo "$spazio" >> $reportPath
         echo " " >> $reportPath
         echo "VAADIN: SI" >> $reportPath
+        echo "File 'local.properties' copiato nella cartella appoggio" >> $reportPath
         echo " " >> $reportPath
     else
-        echo "$spazio" >> $reportPath
-        echo " " >> $reportPath
-        echo "LISTA DEI FILE IN APPOGGIO:" >> $reportPath
-        ls -1 >> $reportPath
-        echo " " >> $reportPath
-        cd ..
         echo "$spazio" >> $reportPath
         echo " " >> $reportPath
         echo "VAADIN: NO" >> $reportPath
         echo " " >> $reportPath
     fi
+    echo "Verifico GEOSERVER."
     # Verifica GEOSERVER
     if [ -z "$(ls -A "$repositoryPath/geoserver/data")" ]; then
         echo "$spazio" >> $reportPath
         echo " " >> $reportPath
         echo "GEOSERVER: NO" >> $reportPath
         echo " " >> $reportPath
+        echo "GEOSERVER: NO"
     else
         echo "$spazio" >> $reportPath
         echo " " >> $reportPath
         echo "GEOSERVER: SI" >> $reportPath
         echo " " >> $reportPath
+        echo "GEOSERVER: SI"
     fi
     echo "$spazio" >> $reportPath
     echo " " >> $reportPath
