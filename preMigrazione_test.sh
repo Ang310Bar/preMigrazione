@@ -24,11 +24,8 @@ echo "$spazio" >> $reportPath
 echo " " >> $reportPath
 echo "Cerco la cartella del repository" >> $reportPath
 echo " " >> $reportPath
-$limiteAttesa=10
-repositoryPath=$(timeout $limiteAttesa find / -type d -path "*/home/jboss/repository" 2> /dev/null)
-if [ -n "$repositoryPath" ]; then
-        repositoryPath=$(timeout $limiteAttesa locate "*/home/jboss/repository" 2> /dev/null)
-fi
+repositoryPath=$(find / -type d -path "*/home/jboss/repository" 2> /dev/null)
+
 # Verifica se il percorso della cartella "repository" è stato trovato correttamente
 if [ -n "$repositoryPath" ]; then
 
