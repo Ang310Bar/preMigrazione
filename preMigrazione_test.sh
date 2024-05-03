@@ -24,7 +24,7 @@ echo "$spazio" >> $reportPath
 echo " " >> $reportPath
 echo "Cerco la cartella del repository" >> $reportPath
 echo " " >> $reportPath
-repositoryPath=$(find / -type d -path "*/home/jboss/repository" 2> /dev/null)
+repositoryPath=$(find /home/jboss -maxdepth 3 -type d -path "*/repository" 2> /dev/null)
 
 # Verifica se il percorso della cartella "repository" è stato trovato correttamente
 if [ -n "$repositoryPath" ]; then
