@@ -34,7 +34,7 @@ if [ -d "$repositoryPath" ]; then
     # Salva nel report il percorso della cartella "repository" e invia l'output alla console
     echo "PATH DELLA REPOSITORY: $repositoryPath" >> $reportPath
     echo "CONTENUTO: " >> $reportPath
-    ls -l "$repositoryPath" | awk '{print $9}' >> $reportPath
+    du -sh "$repositoryPath"/* >> $reportPath  # Aggiungi il peso delle cartelle nel report
     echo " " >> $reportPath
     # Ottieni il percorso della cartella genitore di "repository" che sarebbe /home/jboss/
     parentPath=$(dirname "$repositoryPath") 
@@ -98,11 +98,13 @@ if [ -d "$repositoryPath" ]; then
         echo "VAADIN: SI" >> $reportPath
         echo "File 'local.properties' copiato nella cartella appoggio" >> $reportPath
         echo " " >> $reportPath
+        echo "VAADIN: SI, File 'local.properties' copiato nella cartella appoggio"
     else
         echo "$spazio" >> $reportPath
         echo " " >> $reportPath
         echo "VAADIN: NO" >> $reportPath
         echo " " >> $reportPath
+        echo "VAADIN: NO"
     fi
     echo "Verifico GEOSERVER."
     # Verifica GEOSERVER
